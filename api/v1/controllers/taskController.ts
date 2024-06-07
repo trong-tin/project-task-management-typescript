@@ -78,6 +78,7 @@ export const detail = async (req: Request, res: Response) => {
   });
 };
 
+// [PATCH] /v1/api/tasks/change-status/:id
 export const changeStatus = async (req: Request, res: Response) => {
   try {
     const id: string = req.params.id;
@@ -91,6 +92,42 @@ export const changeStatus = async (req: Request, res: Response) => {
     res.json({
       code: 400,
       message: "Cập nhật không thành công hoặc không tìm thấy",
+    });
+  }
+};
+
+// [GET] /v1/api/tasks/change-multi
+export const changeMulti = async (req: Request, res: Response) => {
+  try {
+    enum Key {
+      status = "status",
+      deleted = "deleted",
+      timeStart = "timeStart",
+      timeFinish = "timeFinish",
+      listUser = "listUser",
+    }
+    const ids: string[] = req.body.ids;
+    const key: Key = req.body.key;
+    const value: string = req.body.value;
+    switch (key) {
+      case Key.status:
+        await Task.updateMany({ _id: { $in: ids } }, { status: value });
+        res.json({
+          code: 200,
+          message: "Cập nhật trạng thái cho các công việc đã chọn thành công",
+        });
+        break;
+
+      default:
+        res.json({
+          code: 400,
+          message: "Không tồn tại",
+        });
+    }
+  } catch (error) {
+    res.json({
+      code: 400,
+      message: "Error 404",
     });
   }
 };
