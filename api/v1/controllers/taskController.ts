@@ -140,7 +140,30 @@ export const create = async (req: Request, res: Response) => {
     res.json({
       code: 200,
       message: "Tạo công việc mới thành công",
-      data: data
+      data: data,
+    });
+  } catch (error) {
+    res.json({
+      code: 400,
+      message: "Error 404",
+    });
+  }
+};
+
+// [PATCH] /v1/api/tasks/edit/:id
+export const edit = async (req: Request, res: Response) => {
+  try {
+    const id: string = req.params.id;
+    await Task.updateOne(
+      {
+        _id: id,
+      },
+      req.body
+    );
+    res.json({
+      code: 200,
+      message: "Chỉnh sửa công việc thành công",
+      dataEdit: req.body,
     });
   } catch (error) {
     res.json({
