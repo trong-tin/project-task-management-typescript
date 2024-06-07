@@ -1,23 +1,60 @@
 import { Request, Response } from "express";
 import Task from "../models/taskModel";
+import paginationHeper from "../../../helpers/paginationHelper";
 
 // [GET] /v1/api/tasks
 export const index = async (req: Request, res: Response) => {
-  interface Find {
-    deleted: boolean;
-    status?: string;
+  try {
+    // FIND
+    interface Find {
+      deleted: boolean;
+      status?: string;
+    }
+    const find: Find = {
+      deleted: false,
+    };
+    if (req.query.status) {
+      find.status = req.query.status.toString();
+    }
+    // END FIND
+
+    // SORT
+    const sort = {};
+    if (req.query.sortKey && req.query.sortValue) {
+      const sortKey = req.query.sortKey.toLocaleString();
+      sort[sortKey] = req.query.sortValue;
+    }
+    // END SORT
+
+    // PAGINATION
+    let initPagination = {
+      currentPage: 1,
+      limitItems: 2,
+    };
+    const countTasks = await Task.countDocuments(find);
+    const objectPagination = paginationHeper(
+      initPagination,
+      req.query,
+      countTasks
+    );
+    // END PAGINATION
+
+    const tasks = await Task.find(find)
+      .sort(sort)
+      .limit(objectPagination.limitItems)
+      .skip(objectPagination.skip);
+
+    res.json({
+      code: 200,
+      message: "Tìm kiếm thành công",
+      tasks,
+    });
+  } catch (error) {
+    res.json({
+      code: 400,
+      message: "Tìm kiếm không thành công",
+    });
   }
-  const find: Find = {
-    deleted: false,
-  };
-  if (req.query.status) {
-    find.status = req.query.status.toString();
-  }
-  const tasks = await Task.find(find);
-  res.json({
-    code: 200,
-    tasks,
-  });
 };
 
 // [GET] /v1/api/tasks/detail/:id
