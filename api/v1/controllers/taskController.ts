@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Task from "../models/taskModel";
 import paginationHeper from "../../../helpers/paginationHelper";
+import searchHelper from "../../../helpers/searchHelper";
 
 // [GET] /v1/api/tasks
 export const index = async (req: Request, res: Response) => {
@@ -9,6 +10,7 @@ export const index = async (req: Request, res: Response) => {
     interface Find {
       deleted: boolean;
       status?: string;
+      title?: RegExp;
     }
     const find: Find = {
       deleted: false,
@@ -25,6 +27,13 @@ export const index = async (req: Request, res: Response) => {
       sort[sortKey] = req.query.sortValue;
     }
     // END SORT
+
+    // SEARCH
+    let objectSearch = searchHelper(req.query);
+    if (req.query.keyword) {
+      find.title = objectSearch.regex;
+    }
+    //END SEARCH
 
     // PAGINATION
     let initPagination = {
@@ -43,7 +52,6 @@ export const index = async (req: Request, res: Response) => {
       .sort(sort)
       .limit(objectPagination.limitItems)
       .skip(objectPagination.skip);
-
     res.json({
       code: 200,
       message: "Tìm kiếm thành công",
