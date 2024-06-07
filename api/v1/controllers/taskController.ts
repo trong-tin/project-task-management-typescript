@@ -96,7 +96,7 @@ export const changeStatus = async (req: Request, res: Response) => {
   }
 };
 
-// [GET] /v1/api/tasks/change-multi
+// PATCH] /v1/api/tasks/change-multi
 export const changeMulti = async (req: Request, res: Response) => {
   try {
     enum Key {
@@ -124,6 +124,24 @@ export const changeMulti = async (req: Request, res: Response) => {
           message: "Không tồn tại",
         });
     }
+  } catch (error) {
+    res.json({
+      code: 400,
+      message: "Error 404",
+    });
+  }
+};
+
+// [POST]] /v1/api/tasks/create
+export const create = async (req: Request, res: Response) => {
+  try {
+    const task = new Task(req.body);
+    const data = await task.save();
+    res.json({
+      code: 200,
+      message: "Tạo công việc mới thành công",
+      data: data
+    });
   } catch (error) {
     res.json({
       code: 400,
