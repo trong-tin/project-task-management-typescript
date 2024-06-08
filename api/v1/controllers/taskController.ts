@@ -101,7 +101,7 @@ export const changeMulti = async (req: Request, res: Response) => {
   try {
     enum Key {
       status = "status",
-      deleted = "deleted",
+      delete = "delete",
       timeStart = "timeStart",
       timeFinish = "timeFinish",
       listUser = "listUser",
@@ -115,6 +115,17 @@ export const changeMulti = async (req: Request, res: Response) => {
         res.json({
           code: 200,
           message: "Cập nhật trạng thái cho các công việc đã chọn thành công",
+        });
+        break;
+
+      case Key.delete:
+        await Task.updateMany(
+          { _id: { $in: ids } },
+          { deleted: true, deletedAt: new Date() }
+        );
+        res.json({
+          code: 200,
+          message: "Xóa các công việc đã chọn thành công",
         });
         break;
 
@@ -164,6 +175,23 @@ export const edit = async (req: Request, res: Response) => {
       code: 200,
       message: "Chỉnh sửa công việc thành công",
       dataEdit: req.body,
+    });
+  } catch (error) {
+    res.json({
+      code: 400,
+      message: "Error 404",
+    });
+  }
+};
+
+// [DELETE] /v1/api/tasks/delete/:id
+export const deleteTask = async (req: Request, res: Response) => {
+  try {
+    const id: string = req.params.id;
+    await Task.updateOne({ _id: id }, { deleted: true, deletedAt: new Date() });
+    res.json({
+      code: 200,
+      message: "Xóa công việc thành công",
     });
   } catch (error) {
     res.json({
