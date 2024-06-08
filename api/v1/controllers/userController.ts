@@ -71,4 +71,23 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-// [GET] /v1/api/users/index
+// [GET] /v1/api/users/detail/:id
+export const detail = async (req: Request, res: Response) => {
+  try {
+    const id: string = req.params.id;
+    const user = await User.findOne({
+      _id: id,
+      deleted: false,
+    }).select("-password -token");
+    res.json({
+      code: 200,
+      message: "Tìm kiếm trang cá nhân thành công",
+      info: user,
+    });
+  } catch (error) {
+    res.json({
+      code: 400,
+      message: "ERROR 404",
+    });
+  }
+};
