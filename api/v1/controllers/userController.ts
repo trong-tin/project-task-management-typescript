@@ -71,18 +71,13 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-// [GET] /v1/api/users/detail/:id
+// [GET] /v1/api/users/detail
 export const detail = async (req: Request, res: Response) => {
   try {
-    const id: string = req.params.id;
-    const user = await User.findOne({
-      _id: id,
-      deleted: false,
-    }).select("-password -token");
     res.json({
       code: 200,
       message: "Tìm kiếm trang cá nhân thành công",
-      info: user,
+      info: req["user"],
     });
   } catch (error) {
     res.json({
